@@ -1,0 +1,309 @@
+using System;
+using System.Diagnostics;
+
+namespace projekt3
+{
+    class projekt3
+    {
+        private static Random random = new Random(Guid.NewGuid().GetHashCode());
+
+        private static double GaussGenerator()
+        {
+            double r1 = random.NextDouble();
+            double r2 = random.NextDouble();
+            double gauss = Math.Sqrt(-2.0 * Math.Log(r1)) * Math.Sin(2.0 * Math.PI * r2);
+            return gauss;
+        }
+
+        private void InsertionSort(int[] Tab)
+        {
+            for (uint i = 1; i < Tab.Length; i++)
+            {
+                uint j = i;
+                int temp = Tab[j];
+                while ((j > 0) && (Tab[j - 1] > temp))
+                {
+                    Tab[j] = Tab[j - 1];
+                    j--;
+                }
+                Tab[j] = temp;
+            }
+        }
+
+        private void SelectionSort(int[] Tab)
+        {
+            uint k;
+            for (uint i = 0; i < (Tab.Length - 1); i++)
+            {
+                int temp = Tab[i];
+                k = i;
+                for (uint j = i + 1; j < Tab.Length; j++)
+                {
+                    if (Tab[j] < temp)
+                    {
+                        k = j;
+                        temp = Tab[j];
+                    }
+                }
+                Tab[k] = Tab[i];
+                Tab[i] = temp;
+            }
+        }
+
+        private void CocktailSort(int[] Tab)
+        {
+            int left = 1;
+            int right = Tab.Length - 1;
+            int k = Tab.Length - 1;
+            do
+            {
+                for (int j = right; j >= left; j--)
+                {
+                    if (Tab[j - 1] > Tab[j])
+                    {
+                        int temp = Tab[j - 1];
+                        Tab[j - 1] = Tab[j];
+                        Tab[j] = temp;
+                        k = j;
+                    }
+                }
+                left = k + 1;
+                for (int j = left; j <= right; j++)
+                {
+                    if (Tab[j - 1] > Tab[j])
+                    {
+                        int temp = Tab[j - 1];
+                        Tab[j - 1] = Tab[j];
+                        Tab[j] = temp;
+                        k = j;
+                    }
+                }
+                right = k - 1;
+            }
+            while (left <= right);
+        }
+
+
+        private void Heapify(int[] Tab, int Left, int Right)
+        {
+            int i = Left,
+            j = 2 * i + 1;
+            int temp = Tab[i];
+            while (j <= Right)
+            {
+                if (j < Right)
+                {
+                    if (Tab[j] < Tab[j + 1])
+                    {
+                        j++;
+                    }
+                }
+
+                if (temp >= Tab[j])
+                {
+                    break;
+                }
+                Tab[i] = Tab[j];
+                i = j;
+                j = 2 * i + 1;
+            }
+            Tab[i] = temp;
+        }
+
+        private void HeapSort(int[] Tab)
+        {
+            Heapify(Tab, 0, Tab.Length - 1);
+            int left = Tab.Length / 2,
+            right = Tab.Length - 1;
+            while (left > 0)
+            {
+                left--;
+                Heapify(Tab, left, right);
+            }
+            while (right > 0)
+            {
+                int temp = Tab[left];
+                Tab[left] = Tab[right];
+                Tab[right] = temp;
+                right--;
+                Heapify(Tab, left, right);
+            }
+        }
+
+        private void QuickSortRecursive(int[] Tab, int Left, int Right, int Key)
+        {
+            int i;
+            int j;
+            int x;
+            i = Left;
+            j = Right;
+
+            if (Key == 0) x = Tab[Left]; // Left
+            else if (Key == 1) x = Tab[Right]; // Right
+            else if (Key == 2) x = Tab[(Left + Right) / 2]; // Middle
+            else x = Tab[Left + random.Next(Right - Left)]; // Random
+
+            do
+            {
+                while (Tab[i] < x)
+                {
+                    i++;
+                }
+                while (x < Tab[j])
+                {
+                    j--;
+                }
+                if (i <= j)
+                {
+                    int temp = Tab[i];
+                    Tab[i] = Tab[j];
+                    Tab[j] = temp;
+                    i++;
+                    j--;
+                }
+            }
+            while (i <= j);
+
+            if (Left < j)
+            {
+                QuickSortRecursive(Tab, Left, j, Key);
+            }
+            if (i < Right)
+            {
+                QuickSortRecursive(Tab, i, Right, Key);
+            }
+        }
+
+        private void QuickSortIterative(int[] Tab, int Key)
+        {
+            int i, j;
+            int Left, Right, sp;
+            int[] StackLeft = new int[Tab.Length];
+            int[] StackRight = new int[Tab.Length];
+            sp = 0;
+            StackLeft[sp] = 0;
+            StackRight[sp] = Tab.Length - 1;
+            do
+            {
+                Left = StackLeft[sp];
+                Right = StackRight[sp];
+                sp--;
+                do
+                {
+                    int x;
+                    i = Left;
+                    j = Right;
+                    if (Key == 0) x = Tab[Left]; // Left
+                    else if (Key == 1) x = Tab[Right]; // Right
+                    else if (Key == 2) x = Tab[(Left + Right) / 2]; // Middle
+                    else x = Tab[Left + random.Next(Right - Left)]; // Random
+                    do
+                    {
+                        while (Tab[i] < x) i++;
+                        while (x < Tab[j]) j--;
+                        if (i <= j)
+                        {
+                            int t = Tab[i];
+                            Tab[i] = Tab[j];
+                            Tab[j] = t;
+                            i++; j--;
+                        }
+                    } while (i <= j);
+
+                    if (i < Right)
+                    {
+                        sp++;
+                        StackLeft[sp] = i;
+                        StackRight[sp] = Right;
+                    }
+                    Right = j;
+                } while (Left < Right);
+            } while (sp >= 0);
+        }
+
+        private void RunAlgorithm(int Size, int Algorithm, int Fill, int Key = 0)
+        {
+            int[] Tab = new int[Size];
+            if (Fill == 0) for (int i = 0; i < Size; i++) Tab[i] = random.Next(Size); // losowe
+            else if (Fill == 1) for (int i = 0; i < Size; i++) Tab[i] = Size - i; // malejace
+            else if (Fill == 2) for (int i = 0; i < Size; i++) Tab[i] = i; // rosnace
+            else if (Fill == 3) for (int i = 0; i < Size; i++) Tab[i] = 0; // stale
+            else if (Fill == 4) for (int i = 0; i < Size; i++) Tab[i] = (int)(GaussGenerator() * Size); // v-ksztalne
+
+            long StartTime = Stopwatch.GetTimestamp();
+
+            if (Algorithm == 0) InsertionSort(Tab);
+            else if (Algorithm == 1) SelectionSort(Tab);
+            else if (Algorithm == 2) CocktailSort(Tab);
+            else if (Algorithm == 3) HeapSort(Tab);
+            else if (Algorithm == 4) QuickSortRecursive(Tab, 0, Tab.Length - 1, Key);
+            else if (Algorithm == 5) QuickSortIterative(Tab, Key);
+
+            long EndTime = Stopwatch.GetTimestamp();
+            double ElapsedTime = (EndTime - StartTime) * (1000.0 / Stopwatch.Frequency);
+            Console.Write("{0, 20} ", ElapsedTime.ToString("0.00"));
+        }
+
+        public Projekt3()
+        {
+            Console.WriteLine("Wplyw ulozenia danych dla InsertionSort, SelectionSort, CoctailSort oraz HeapSort\n");
+            for (int fill = 0; fill <= 4; fill++)
+            {
+                string[] s = { "Losowe", "Malejące", "Rosnące", "Stałe", "V" };
+                Console.WriteLine(s[fill]);
+
+                Console.WriteLine("{0, 20} {1, 20} {2, 20} {3, 20} {4, 20}",
+                    "N",
+                    "InsertionSort",
+                    "SelectionSort",
+                    "CoctailSort",
+                    "HeapSort");
+
+                for (int size = 50000; size <= 200000; size += 10000)
+                {
+                    Console.Write("{0, 20} ", size);
+                    for (int algorithm = 0; algorithm <= 3; algorithm++)
+                    {
+                        RunAlgorithm(size, algorithm, fill);
+                    }
+                    Console.WriteLine();
+                }
+                Console.WriteLine();
+            }
+
+            Console.WriteLine("\nQuicksort rekurencyjny/iteracyjny, ciag losowy\n");
+            Console.WriteLine("{0, 20} {1, 20} {2, 20}", "", "Rekurencyjny", "Iteracyjny");
+
+            for (int size = 50000; size <= 200000; size += 10000)
+            {
+                Console.Write("{0, 20} ", size);
+                RunAlgorithm(size, 4, 0); // quicksort rekurencyjny
+                RunAlgorithm(size, 4, 1); // quicksort iteracyjny
+                Console.WriteLine();
+            }
+
+            Console.WriteLine("\nWybor klucza: Quicksort rekurencyjny/iteracyjny, ciag V\n");
+            for (int key = 0; key <= 3; key++)
+            {
+                string[] keys = { "lewy", "prawy", "srodkowy", "losowy" };
+                Console.WriteLine("Klucz: " + keys[key]);
+
+                Console.WriteLine("{0, 20} {1, 20} {2, 20}", "", "Rekurencyjny", "Iteracyjny");
+                for (int n = 50000; n <= 200000; n += 10000)
+                {
+                    Console.Write("{0, 20}:", n);
+                    RunAlgorithm(n, 4, 4, key);
+                    RunAlgorithm(n, 5, 4, key);
+                    Console.WriteLine();
+                }
+                Console.WriteLine();
+            }
+        }
+
+        static void Main()
+        {
+            new Projekt3();
+            Console.ReadKey();
+        }
+    }
+}
